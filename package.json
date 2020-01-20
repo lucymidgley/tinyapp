@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/lucymidgley/tinyapp/issues"
   },
-  "homepage": "https://github.com/lucymidgley/tinyapp#readme"
+  "homepage": "https://github.com/lucymidgley/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
