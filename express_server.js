@@ -14,9 +14,8 @@ function generateRandomString() {
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "example" : "http://example.com/"
+  "b2xVn2": "www.lighthouselabs.ca",
+  "9sm5xK": "www.google.com"
 };
 
 const bodyParser = require("body-parser");
@@ -47,12 +46,22 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+
+
+app.post("/urls", (req, res) => {
+  console.log(req.body); 
+  newStr = generateRandomString()
+  urlDatabase[newStr] = req.body['longURL'];
+  res.redirect(`/urls/${newStr}`);
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params['shortURL']];
+  console.log(urlDatabase[req.params['shortURL']]);
+  res.redirect(`http://${urlDatabase[req.params['shortURL']]}`);
 });
