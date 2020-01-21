@@ -61,7 +61,9 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  if(urlDatabase[req.params['shortURL']]){
   const longURL = urlDatabase[req.params['shortURL']];
   console.log(urlDatabase[req.params['shortURL']]);
-  res.redirect(`http://${urlDatabase[req.params['shortURL']]}`);
+  res.redirect(`http://${longURL}`);
+  } else res.send("Please enter a valid short URL") 
 });
