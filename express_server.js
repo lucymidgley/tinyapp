@@ -1,5 +1,7 @@
 const express = require("express");
+const cookieParser = require('cookie-parser');
 const app = express();
+app.use(cookieParser());
 const PORT = 8080;
 
 function generateRandomString() {
@@ -38,12 +40,15 @@ app.get("/hello", (req, res) => {
 })
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { username: req.cookies["username"],
+    urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["username"],
+    urls: urlDatabase };
+  res.render("urls_new", templateVars);
 });
 
 
@@ -56,7 +61,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
@@ -76,13 +81,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   console.log(req.params, req.body['longURL']);
-  let templateVars = { shortURL: req.params.shortURL, longURL: req.body['longURL'] };
+  let templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: req.body['longURL'] };
   urlDatabase[req.params['shortURL']] = req.body['longURL'];
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  console.log(req.params, urlDatabase[req.params.shortURL]);
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
+});
+
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username).redirect("/urls")
 });
