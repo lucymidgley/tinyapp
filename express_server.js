@@ -52,7 +52,6 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.cookies['user_id'];
   const user = users[userId];
-  console.log('user', user);
   if(!user){
     let templateVars = {
       urls: urlDatabase, user };
