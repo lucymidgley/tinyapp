@@ -112,13 +112,14 @@ app.post("/register", (req, res) => {
   if(req.body.email === "" || req.body.password === ""){
     res.status(400).send("Please go back and enter a valid username and password")
   }else if (!lookupEmail(req.body.email, users)){
-    res.status(400).send("This user already exists, please go back and enter your details again")
+    res.status(400).send("This user already exists, login?")
   }
   else {
     userID = generateRandomString();
-    users.id = userID;
-    users.email = req.body.email;
-    users.password = req.body.password;
+    users[userID] = {};
+    users[userID]['id'] = userID;
+    users[userID]['email'] = req.body.email;
+    users[userID]['password'] = req.body.password;
     console.log(users);
   res.cookie("user_id", userID).redirect("/urls");
   }
