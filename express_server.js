@@ -1,25 +1,11 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const lookupEmail = require("./emailChecker")
+const generateRandomString = require("./genStr")
 const app = express();
 app.use(cookieParser());
 const PORT = 8080;
 
-function generateRandomString() {
-  const arr = [1,2,3,4,5,6,7,8,9,0,"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-  let ans = ""
-  for(let i=0; i<6; i++){
-    ans += arr[Math.floor(Math.random() * arr.length)];
-  }
-  return ans
-  }
-
-  function lookupEmail(emAd, usersObj) {
-    for(const user in usersObj){
-      if(usersObj[user]['email'] === emAd){
-        return false
-      }
-    } return true
-  }
 
 
 app.set("view engine", "ejs");
