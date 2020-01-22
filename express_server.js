@@ -108,8 +108,14 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const userId = req.cookies['user_id'];
+  const user = users[userId];
+  if(!user){
+    res.status(403).redirect("/login")
+  } else {
   delete urlDatabase[req.params['shortURL']]
   res.redirect(`/urls`);
+  }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
@@ -124,8 +130,12 @@ app.post("/urls/:shortURL", (req, res) => {
 app.get("/urls/:shortURL/edit", (req, res) => {
   const userId = req.cookies['user_id'];
   const user = users[userId];
+  if(!user){
+    res.status(403).redirect("/login")
+  } else {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user};
   res.render("urls_show", templateVars);
+  }
 });
 
 app.post("/login", (req, res) => {
