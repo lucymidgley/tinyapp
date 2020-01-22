@@ -53,7 +53,6 @@ app.get("/urls/new", (req, res) => {
 
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); 
   newStr = generateRandomString()
   urlDatabase[newStr] = req.body['longURL'];
   res.redirect(`/urls/${newStr}`);
@@ -67,19 +66,16 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if(urlDatabase[req.params['shortURL']]){
   const longURL = urlDatabase[req.params['shortURL']];
-  console.log(urlDatabase[req.params['shortURL']]);
   res.redirect(`http://${longURL}`);
   } else res.send("Please enter a valid short URL") 
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  console.log(req.params['shortURL']);
   delete urlDatabase[req.params['shortURL']] 
   res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  console.log(req.params, req.body['longURL']);
   let templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: req.body['longURL'] };
   urlDatabase[req.params['shortURL']] = req.body['longURL'];
   res.render("urls_show", templateVars);
