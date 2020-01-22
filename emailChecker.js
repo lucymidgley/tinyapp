@@ -1,9 +1,9 @@
 function lookupEmail(emAd, usersObj) {
   for(const user in usersObj){
     if(usersObj[user]['email'] === emAd){
-      return false
+      return emAd
     }
-  } return true
+  }
 }
 
 module.exports = lookupEmail;

@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const lookupEmail = require("./emailChecker")
+const findUserByEmail = require('./findUserByEmail')
 const generateRandomString = require("./genStr")
 const app = express();
 app.use(cookieParser());
@@ -97,7 +98,7 @@ app.post("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls/:shortURL/edit", (req, res) => {
+app.get("/urls/:shortURL/edit", (req, res) => {
   const userId = req.cookies['user_id'];
   const user = users[userId];
   let templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user};
@@ -105,11 +106,22 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username).redirect("/urls")
+  if(lookupEmail(req.body.email, users) !== req.body.email){
+    res.status(403).send("This user does not exist, please register")
+  } else {
+  user = findUserByEmail(req.body.email, users);
+  if(req.body.password !== user.password){
+    res.status(403).send("This password is incorrect")
+  } else {
+  res.cookie("user_id", user.id).redirect("/urls")
+  }
+}
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username", req.body.username).redirect("/urls")
+  const userId = req.cookies['user_id'];
+  const user = users[userId];
+  res.clearCookie("user_id", user.id).redirect("/urls")
 });
 
 app.get("/register", (req, res) => {
@@ -131,7 +143,7 @@ app.get("/login", (req, res) => {
 app.post("/register", (req, res) => {
   if(req.body.email === "" || req.body.password === ""){
     res.status(400).send("Please go back and enter a valid username and password")
-  }else if (!lookupEmail(req.body.email, users)){
+  }else if (lookupEmail(req.body.email, users) === req.body.email){
     res.status(400).send("This user already exists, login?")
   }
   else {
