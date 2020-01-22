@@ -52,7 +52,6 @@ app.get("/urls/new", (req, res) => {
 });
 
 
-
 app.post("/urls", (req, res) => {
   console.log(req.body); 
   newStr = generateRandomString()
@@ -93,4 +92,8 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username).redirect("/urls")
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username", req.body.username).redirect("/urls")
 });
