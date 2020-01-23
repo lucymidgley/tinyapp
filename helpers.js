@@ -22,7 +22,7 @@ const createUser = function(userID, email, password) {
   const newUser = {};
   newUser['id'] = userID;
   newUser['email'] = email;
-  newUser['password'] = bcrypt.hashSync(password, 10); 
+  newUser['password'] = bcrypt.hashSync(password, 10);
   return newUser;
 };
 
@@ -44,9 +44,9 @@ function lookupEmail(emAd, usersObj) {
 }
 
 const checkShortURL = function(urlDB, userID, shortURL) {
-  let usersURLs = urlsForUserID(urlDB, userID) //check filtered urls against given url and id to check ownership
+  let usersURLs = urlsForUserID(urlDB, userID); //check filtered urls against given url and id to check ownership
   return Object.keys(usersURLs).includes(shortURL);
-}
+};
 
 
 

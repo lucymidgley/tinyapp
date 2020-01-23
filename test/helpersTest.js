@@ -73,7 +73,6 @@ describe('checkShortUrl', function() {
   });
   it('should return false if the short url is not in the users url database', function() {
     const check = checkShortURL(urlDatabase, "something1243", "9sm5xK");
-    const expectedOutput = false;
     assert.isFalse(check);
   });
 });
