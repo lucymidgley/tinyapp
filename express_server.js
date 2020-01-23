@@ -5,6 +5,7 @@ const findUserByEmail = require('./findUserByEmail')
 const generateRandomString = require("./genStr")
 const app = express();
 const urlsForUserID = require("./filterUrls");
+const bcrypt = require('bcrypt');
 app.use(cookieParser());
 const PORT = 8080;
 
