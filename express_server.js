@@ -143,7 +143,7 @@ app.post("/login", (req, res) => {
     res.status(403).send("This user does not exist, please register")
   } else {
   user = findUserByEmail(req.body.email, users);
-  if(req.body.password !== user.password){
+  if(!bcrypt.compareSync(req.body.password, user.password)){
     res.status(403).send("This password is incorrect")
   } else {
   res.cookie("user_id", user.id).redirect("/urls")
@@ -184,7 +184,9 @@ app.post("/register", (req, res) => {
     users[userID] = {};
     users[userID]['id'] = userID;
     users[userID]['email'] = req.body.email;
-    users[userID]['password'] = req.body.password;
+    users[userID]['password'] = bcrypt.hashSync(req.body.password, 10);
   res.cookie("user_id", userID).redirect("/urls");
+  console.log(users);
   }
 });
+
