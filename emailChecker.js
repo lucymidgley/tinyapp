@@ -1,7 +1,7 @@
 function lookupEmail(emAd, usersObj) {
-  for(const user in usersObj){
-    if(usersObj[user]['email'] === emAd){
-      return emAd
+  for (const user in usersObj) {
+    if (usersObj[user]['email'] === emAd) {
+      return emAd;
     }
   }
 }
