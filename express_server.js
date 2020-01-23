@@ -7,6 +7,7 @@ const app = express();
 const urlsForUserID = require("./filterUrls");
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const createUser = require('./createUser');
 app.use(cookieParser());
 const PORT = 8080;
 
@@ -110,7 +111,13 @@ app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params['shortURL']]) {
     const longURL = urlDatabase[req.params['shortURL']]['longURL'];
     res.redirect(`http://${longURL}`);
-  } else res.send("Please enter a valid short URL");
+  } else {
+    const userId = req.session.user_id;
+    const user = users[userId];
+    let templateVars = {
+      urls: urlDatabase, user };
+    res.status(403).render("notURL", templateVars);
+  }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -146,11 +153,15 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 
 app.post("/login", (req, res) => {
   if (lookupEmail(req.body.email, users) !== req.body.email) {
-    res.status(403).send("This user does not exist, please register");
+    let templateVars = {
+      urls: urlDatabase, user: null };
+    res.status(403).render("badDet", templateVars);
   } else {
     const user = findUserByEmail(req.body.email, users);
     if (!bcrypt.compareSync(req.body.password, user.password)) {
-      res.status(403).send("This password is incorrect");
+      let templateVars = {
+        urls: urlDatabase, user: null };
+      res.status(403).render("badPw", templateVars);
     } else {
       req.session.user_id = user.id;
       res.redirect("/urls");
@@ -181,15 +192,16 @@ app.get("/login", (req, res) => {
 
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
-    res.status(400).send("Please go back and enter a valid email and password");
+    let templateVars = {
+      urls: urlDatabase, user: null };
+    res.status(400).render("badDet", templateVars);
   } else if (lookupEmail(req.body.email, users) === req.body.email) {
-    res.status(400).send("This user already exists, login?");
+    let templateVars = {
+      urls: urlDatabase, user: null };
+    res.status(400).render("userExists", templateVars);
   } else {
     const userID = generateRandomString();
-    users[userID] = {};
-    users[userID]['id'] = userID;
-    users[userID]['email'] = req.body.email;
-    users[userID]['password'] = bcrypt.hashSync(req.body.password, 10);
+    users[userID] = createUser(userID, req.body.email, req.body.password);
     req.session.user_id = userID;
     res.redirect("/urls");
   }
