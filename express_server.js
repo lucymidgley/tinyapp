@@ -1,13 +1,9 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
-const lookupEmail = require("./emailChecker");
-const findUserByEmail = require('./helpers');
-const generateRandomString = require("./genStr");
 const app = express();
-const urlsForUserID = require("./filterUrls");
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
-const createUser = require('./createUser');
+const { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail } = require('./helpers');
 app.use(cookieParser());
 const PORT = 8080;
 
