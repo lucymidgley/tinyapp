@@ -44,7 +44,7 @@ function lookupEmail(emAd, usersObj) {
 }
 
 const checkShortURL = function(urlDB, userID, shortURL) {
-  let usersURLs = urlsForUserID(urlDB, userID)
+  let usersURLs = urlsForUserID(urlDB, userID) //check filtered urls against given url and id to check ownership
   return Object.keys(usersURLs).includes(shortURL);
 }
 

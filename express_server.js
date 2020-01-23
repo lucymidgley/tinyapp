@@ -88,7 +88,7 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!user) {
     res.status(403).redirect("/login"); 
   } else {
-    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){ //check user owns this short URL
       res.status(403).render("notOwner", templateVars)
     }else {
     let templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'] , user}; //extract short and long URLs from the database using req params
@@ -117,7 +117,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (!user) {
     res.status(403).redirect("/login"); //check user is logged in
   } else {
-    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){ //check user owns this short URL
       res.status(403).render("notOwner", templateVars)
     }else {
     delete urlDatabase[req.params['shortURL']]; //delete entire entry of this url from database
@@ -133,7 +133,7 @@ app.post("/urls/:shortURL", (req, res) => {
   if (!user) {
     res.status(403).redirect("/login"); //check user logged in
   } else {
-    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){ //check user owns this short URL
       res.status(403).render("notOwner", templateVars)
     }else {
   let templateVars = { shortURL: req.params.shortURL, longURL: req.body['longURL'], user };
@@ -151,7 +151,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   if (!user) {
     res.status(403).redirect("/login"); //check user logged in
   } else {
-    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){ //check user owns this short URL
       res.status(403).render("notOwner", templateVars)
     }else {
     let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user};
