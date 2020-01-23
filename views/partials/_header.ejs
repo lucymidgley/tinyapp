@@ -13,8 +13,9 @@
     <% if(user){ %>
       <form method="POST" action="/logout" ><h7 style="margin-right:10px">You're logged in as <%=user.email%>!</h7><button type="submit" class="btn btn-outline-dark"  >Logout</button></form>
     <% } else{ %>  
-      <form method="GET" action="/login" style="margin-left: 5px;"><button type="submit" class="btn btn-outline-dark" >login</button></form>
-            <form method="GET" action="/register" style="margin-left: 5px;"><button type="submit" class="btn btn-outline-dark" >Register</button></form>
+      <div class="navbar-nav">
+      <a class="nav-item nav-link " href="/login">Login</a>
+      <a class="nav-item nav-link " href="/register">Register</a>
             <% } %>
     </div>
   </nav>
