@@ -1,7 +1,7 @@
 function findUserByEmail(emAd, usersObj) {
   for (const user in usersObj) {
     const outputUser = usersObj[user];
-    if (outputUser['email'] === emAd) {
+    if (outputUser['email'] === emAd) { //loop through users and see if any user's email coreresponds to given email
       return outputUser;
     }
   }
@@ -10,7 +10,7 @@ function findUserByEmail(emAd, usersObj) {
 const urlsForUserID = function(urlDB, ID) {
   const newDB = {};
   for (const shortUrl in urlDB) {
-    if (urlDB[shortUrl]['userID'] === ID) {
+    if (urlDB[shortUrl]['userID'] === ID) { //loop through db and add url obejcts to new db if the user id matches
       newDB[shortUrl] = urlDB[shortUrl];
     }
   } return newDB;
@@ -22,7 +22,7 @@ const createUser = function(userID, email, password) {
   const newUser = {};
   newUser['id'] = userID;
   newUser['email'] = email;
-  newUser['password'] = bcrypt.hashSync(password, 10);
+  newUser['password'] = bcrypt.hashSync(password, 10); 
   return newUser;
 };
 
@@ -37,7 +37,7 @@ function generateRandomString() {
 
 function lookupEmail(emAd, usersObj) {
   for (const user in usersObj) {
-    if (usersObj[user]['email'] === emAd) {
+    if (usersObj[user]['email'] === emAd) { //see if any user in user db has email corresponding to given email
       return emAd;
     }
   }
