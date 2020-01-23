@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const  { urlsForUserID, findUserByEmail, lookupEmail }  = require('../helpers.js');
+const  { urlsForUserID, findUserByEmail, lookupEmail, checkShortURL }  = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -65,3 +65,15 @@ describe('lookupEmail', function() {
   });
 });
 
+//test for checkShortUrl
+describe('checkShortUrl', function() {
+  it('should true if the short url is in the users url database', function() {
+    const check = checkShortURL(urlDatabase, "something1243", "b2xVn2");
+    assert.isTrue(check);
+  });
+  it('should return false if the short url is not in the users url database', function() {
+    const check = checkShortURL(urlDatabase, "something1243", "9sm5xK");
+    const expectedOutput = false;
+    assert.isFalse(check);
+  });
+});

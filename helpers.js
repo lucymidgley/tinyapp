@@ -43,7 +43,12 @@ function lookupEmail(emAd, usersObj) {
   }
 }
 
+const checkShortURL = function(urlDB, userID, shortURL) {
+  let usersURLs = urlsForUserID(urlDB, userID)
+  return Object.keys(usersURLs).includes(shortURL);
+}
 
 
-module.exports = { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail };
+
+module.exports = { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail, checkShortURL };
 

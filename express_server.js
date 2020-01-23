@@ -3,7 +3,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
-const { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail } = require('./helpers');
+const { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail, checkShortURL } = require('./helpers');
 const users = require('./database/users.js');
 const urlDatabase = require('./database/urlDatabase.js');
 app.use(cookieParser());
@@ -70,22 +70,31 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => { 
   const userId = req.session.user_id; //find user in db so we can assign new url to user
   const user = users[userId];
+  if (!user) {
+    res.status(403).redirect("/login"); 
+  } else {
   const newStr = generateRandomString(); //create random string for the shortURL
   urlDatabase[newStr] = {};
   urlDatabase[newStr]['longURL'] = req.body['longURL'];
   urlDatabase[newStr]['userID'] = user.id; //update db with new urls
   res.redirect(`/urls/${newStr}`); 
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId]; //check user is logged in
+  let templateVars = { user }
   if (!user) {
     res.status(403).redirect("/login"); 
   } else {
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+      res.status(403).render("notOwner", templateVars)
+    }else {
     let templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'] , user}; //extract short and long URLs from the database using req params
     res.render("urls_show", templateVars); //render page to show user their new URL 
   }
+}
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -104,32 +113,51 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
+  let templateVars = { user };
   if (!user) {
     res.status(403).redirect("/login"); //check user is logged in
   } else {
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+      res.status(403).render("notOwner", templateVars)
+    }else {
     delete urlDatabase[req.params['shortURL']]; //delete entire entry of this url from database
     res.redirect(`/urls`); 
   }
+}
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
+  let templateVars = { user };
+  if (!user) {
+    res.status(403).redirect("/login"); //check user logged in
+  } else {
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+      res.status(403).render("notOwner", templateVars)
+    }else {
   let templateVars = { shortURL: req.params.shortURL, longURL: req.body['longURL'], user };
   urlDatabase[req.params['shortURL']]['longURL'] = req.body['longURL'];
   urlDatabase[req.params['shortURL']]['userID'] = user.id;
-  res.render("urls_show", templateVars); //when user creates new short URL update database with new entry and render show page with this new short URL
+  res.redirect('/urls') //when user creates new short URL update database with new entry
+  }
+}
 });
 
 app.get("/urls/:shortURL/edit", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
+  templateVars = { user }
   if (!user) {
     res.status(403).redirect("/login"); //check user logged in
   } else {
+    if(!checkShortURL(urlDatabase, userId, req.params.shortURL)){
+      res.status(403).render("notOwner", templateVars)
+    }else {
     let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user};
     res.render("urls_show", templateVars); 
   }
+}
 });
 
 app.post("/login", (req, res) => {
@@ -160,7 +188,11 @@ app.get("/register", (req, res) => {
   const user = users[userId];
   let templateVars = {
     urls: urlDatabase, user }; 
+    if (user) {
+      res.redirect("/urls"); //check user is logged in
+    } else {
   res.render("register", templateVars); //send information to header to load register page
+    }
 });
 
 app.get("/login", (req, res) => {
@@ -168,7 +200,11 @@ app.get("/login", (req, res) => {
   const user = users[userId];
   let templateVars = {
     urls: urlDatabase, user };
+    if (user) {
+      res.redirect("/urls"); //check user is logged in
+    } else {
   res.render("login", templateVars); //send information to header to load login page
+    }
 });
 
 app.post("/register", (req, res) => {
