@@ -20,11 +20,15 @@ app.use(cookieSession({
 
 app.set("view engine", "ejs");
 
+//set up database for urls 
+//the first key is the shortURL
+
 const urlDatabase = {
   "b2xVn2": {longURL: "www.lighthouselabs.ca", userID: "something1243"},
   "9sm5xK": {longURL: "www.google.com", userID: "anotherthing1234"}
 };
 
+//set up users database
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -41,21 +45,13 @@ const users = {
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`);
+  console.log(`Tiny app listening on port ${PORT}`);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+//check if user exists, if not render not_logged_in
+//otherwise render index for users urls
 
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
@@ -70,6 +66,9 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
   }
 });
+
+//check if user exists, if not redirect to login
+//otherwise render index for users urls
 
 app.get("/urls/new", (req, res) => {
   const userId = req.session.user_id;
