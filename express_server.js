@@ -4,6 +4,8 @@ const app = express();
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 const { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail } = require('./helpers');
+const users = require('./database/users.js');
+const urlDatabase = require('./database/urlDatabase.js');
 app.use(cookieParser());
 const PORT = 8080;
 
@@ -16,27 +18,6 @@ app.use(cookieSession({
 
 app.set("view engine", "ejs");
 
-//set up database for urls 
-//the first key is the shortURL
-
-const urlDatabase = {
-  "b2xVn2": {longURL: "www.lighthouselabs.ca", userID: "something1243"},
-  "9sm5xK": {longURL: "www.google.com", userID: "anotherthing1234"}
-};
-
-//set up users database
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -44,6 +25,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.listen(PORT, () => {
   console.log(`Tiny app listening on port ${PORT}`);
+});
+
+app.get("/", (req, res) => {
+  res.redirect("/urls");
 });
 
 //check if user exists, if not render not_logged_in

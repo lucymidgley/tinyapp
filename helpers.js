@@ -45,5 +45,5 @@ function lookupEmail(emAd, usersObj) {
 
 
 
-module.exports = { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail }
+module.exports = { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail };
 
