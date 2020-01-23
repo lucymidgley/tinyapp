@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const lookupEmail = require("./emailChecker");
-const findUserByEmail = require('./findUserByEmail');
+const findUserByEmail = require('./helpers');
 const generateRandomString = require("./genStr");
 const app = express();
 const urlsForUserID = require("./filterUrls");
@@ -68,7 +68,7 @@ app.get("/urls", (req, res) => {
 });
 
 //check if user exists, if not redirect to login
-//otherwise render index for users urls
+//otherwise render new url page
 
 app.get("/urls/new", (req, res) => {
   const userId = req.session.user_id;
@@ -83,6 +83,7 @@ app.get("/urls/new", (req, res) => {
     res.render("urls_new", templateVars);
   }
 });
+
 
 
 app.post("/urls", (req, res) => {
