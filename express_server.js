@@ -16,7 +16,7 @@ app.use(cookieSession({
   keys: ['thisIsMyVerySecretKey'],
 }));
 
-app.use(methodOverride());
+
 
 app.set("view engine", "ejs");
 
@@ -46,8 +46,15 @@ app.get("/urls", (req, res) => {
       urls: urlDatabase, user };
     res.render("not_logged_in", templateVars);
   } else {
-    let templateVars = {
-      urls: urlsForUserID(urlDatabase, user.id), user };
+    let visits = {};
+    console.log('session', req.session);
+    let usersUrls = urlsForUserID(urlDatabase, user.id);
+      for(const shortURL of Object.keys(usersUrls)) {
+        visits[shortURL] = req.session[shortURL]
+      }
+      console.log(visits);
+      let templateVars = {
+        urls: urlsForUserID(urlDatabase, user.id), user, visits };
     res.render("urls_index", templateVars);
   }
 });
@@ -81,6 +88,8 @@ app.post("/urls", (req, res) => {
     urlDatabase[newStr] = {};
     urlDatabase[newStr]['longURL'] = req.body['longURL'];
     urlDatabase[newStr]['userID'] = user.id; //update db with new urls
+    req.session[newStr] = 0; //set cookie for the number of visits to 0
+    console.log(req.session.newStr);
     res.redirect(`/urls/${newStr}`);
   }
 });
@@ -104,6 +113,8 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params['shortURL']]) { //check shortURL is in db
     const longURL = urlDatabase[req.params['shortURL']]['longURL'];
+    const shortURL = req.params.shortURL;
+    req.session[shortURL] += 1;
     res.redirect(`http://${longURL}`); //if so redirect to this page
   } else {
     const userId = req.session.user_id;
