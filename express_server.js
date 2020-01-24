@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const methodOverride = require('method-override')
 const app = express();
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
@@ -9,18 +10,21 @@ const urlDatabase = require('./database/urlDatabase.js');
 app.use(cookieParser());
 const PORT = 8080;
 
+
 app.use(cookieSession({
   name: 'session',
   keys: ['thisIsMyVerySecretKey'],
 }));
 
-
+app.use(methodOverride());
 
 app.set("view engine", "ejs");
 
-
+app.use(methodOverride('_method'));
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
+
 
 
 app.listen(PORT, () => {
@@ -110,7 +114,7 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
   let templateVars = { user };
@@ -143,7 +147,7 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
-app.get("/urls/:shortURL/edit", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
   let templateVars = { user };
@@ -154,7 +158,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
       res.status(403).render("notOwner", templateVars);
     } else {
       let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user};
-      res.render("urls_show", templateVars);
+      res.render("urls_show", templateVars); //allow user to edit URL 
     }
   }
 });
@@ -177,7 +181,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-app.post("/logout", (req, res) => {
+app.delete("/logout", (req, res) => {
   req.session = null;
   res.redirect("/login");
 }); //clear seesion cookies to logout, redirect to login
