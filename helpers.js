@@ -48,7 +48,26 @@ const checkShortURL = function(urlDB, userID, shortURL) {
   return Object.keys(usersURLs).includes(shortURL);
 };
 
+const timeConverter = function(unixTimestamp) {
+  const fmDate = new Date(unixTimestamp * 1000);
+  const year = fmDate.getFullYear();
+  const month = fmDate.getMonth();
+  const day = fmDate.getDate();
+  const hour = fmDate.getHours();
+  const min = fmDate.getMinutes();
+  const sec = fmDate.getSeconds();
+  const time = new Date(Date.UTC(year, month, day, hour, min, sec));
+  return time.toUTCString();
+};
 
+const userTimes = function(url, timesArr) {
+  const newArr = [];
+  for(const item of timesArr){
+    if(item[0] === url) {
+      newArr.push(item);
+    }
+  } return newArr;
+}
 
-module.exports = { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail, checkShortURL };
+module.exports = { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail, checkShortURL, timeConverter, userTimes};
 

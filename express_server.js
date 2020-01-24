@@ -4,7 +4,7 @@ const methodOverride = require('method-override')
 const app = express();
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
-const { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail, checkShortURL } = require('./helpers');
+const { urlsForUserID, findUserByEmail, createUser, generateRandomString, lookupEmail, checkShortURL, timeConverter, userTimes} = require('./helpers');
 const users = require('./database/users.js');
 const urlDatabase = require('./database/urlDatabase.js');
 app.use(cookieParser());
@@ -105,7 +105,11 @@ app.get("/urls/:shortURL", (req, res) => {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
       res.status(403).render("notOwner", templateVars);
     } else {
-      let templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'] , user}; //extract short and long URLs from the database using req params
+      console.log('shortURL', req.params.shortURL);
+      console.log('sessiontimes', req.session.times);
+      let times = userTimes(req.params.shortURL, req.session.times);
+      console.log('times', times);
+      let templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'] , user, times}; //extract short and long URLs from the database using req params
       res.render("urls_show", templateVars); //render page to show user their new URL
     }
   }
@@ -124,7 +128,9 @@ app.get("/u/:shortURL", (req, res) => {
     req.session.hasVisited[shortURL].push(userId); //if not add user to vistors array
     }
   }
+
     req.session[shortURL] += 1;
+    req.session.times.push([shortURL, userId, timeConverter(Math.round((new Date()).getTime() / 1000))]);
     res.redirect(`http://${longURL}`); //if so redirect to this page
   } else {
     const userId = req.session.user_id;
@@ -178,7 +184,9 @@ app.put("/urls/:shortURL", (req, res) => {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
       res.status(403).render("notOwner", templateVars);
     } else {
-      let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user};
+      console.log(req.session.times);
+      let times = userTimes(req.params.shortURL, req.session.times);
+      let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user, times};
       res.render("urls_show", templateVars); //allow user to edit URL 
     }
   }
@@ -244,6 +252,10 @@ app.post("/register", (req, res) => {
     if(!req.session.hasVisited || Object.keys(req.session.hasVisited).length === 0){
     req.session.hasVisited = {};
     };
+    if(!req.session.times || req.session.times.length === 0){
+      req.session.times = [];
+    }
+    console.log('req.session.times :', req.session.times);
     const userID = generateRandomString();
     users[userID] = createUser(userID, req.body.email, req.body.password);
     req.session.user_id = userID;
