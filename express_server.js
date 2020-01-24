@@ -47,12 +47,12 @@ app.get("/urls", (req, res) => {
     res.render("not_logged_in", templateVars);
   } else {
     let totalVisits = {};
-    let uniqueVisits = {};
-    let visits = { totalVisits, uniqueVisits };
+    let uniqueVisits = {}; //set up visits object
+    let visits = { totalVisits, uniqueVisits }; 
     let usersUrls = urlsForUserID(urlDatabase, user.id);
-      for(const shortURL of Object.keys(usersUrls)) {
+      for(const shortURL of Object.keys(usersUrls)) { //find visit counters by checking these cookies
         visits.totalVisits[shortURL] = req.session[shortURL] //add number of visits and unique visits to visits object
-        visits.uniqueVisits[shortURL] = req.session.hasVisited[shortURL].length
+        visits.uniqueVisits[shortURL] = req.session.hasVisited[shortURL].length 
       }
       let templateVars = {
         urls: urlsForUserID(urlDatabase, user.id), user, visits };
@@ -82,9 +82,13 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   const userId = req.session.user_id; //find user in db so we can assign new url to user
   const user = users[userId];
+  let templateVars = { user }
   if (!user) {
     res.status(403).redirect("/login");
   } else {
+    if(req.body['longURL'] === ""){
+      res.render("emptyURL", templateVars ) //make sure they can't enter empty url
+  }else {
     const newStr = generateRandomString(); //create random string for the shortURL
     urlDatabase[newStr] = {};
     urlDatabase[newStr]['longURL'] = req.body['longURL'];
@@ -93,6 +97,7 @@ app.post("/urls", (req, res) => {
     req.session.hasVisited[newStr] = [];  //set number of unique visits to 0
     res.redirect(`/urls/${newStr}`);
   }
+}
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -105,10 +110,7 @@ app.get("/urls/:shortURL", (req, res) => {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
       res.status(403).render("notOwner", templateVars);
     } else {
-      console.log('shortURL', req.params.shortURL);
-      console.log('sessiontimes', req.session.times);
       let times = userTimes(req.params.shortURL, req.session.times);
-      console.log('times', times);
       let templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'] , user, times}; //extract short and long URLs from the database using req params
       res.render("urls_show", templateVars); //render page to show user their new URL
     }
@@ -122,22 +124,22 @@ app.get("/u/:shortURL", (req, res) => {
     const shortURL = req.params.shortURL;
     if(Object.keys(req.session.hasVisited).length === 0){ //check if anyone has visited link before
       req.session.hasVisited[shortURL] = [] 
-      req.session.hasVisited[shortURL].push(userId);
+      req.session.hasVisited[shortURL].push(userId); //only add users to unique visits if they have not visited before
     } else {
       if(!req.session.hasVisited[shortURL].includes(userId)){ //check if this user has visted link before
     req.session.hasVisited[shortURL].push(userId); //if not add user to vistors array
     }
   }
 
-    req.session[shortURL] += 1;
+    req.session[shortURL] += 1; //increase number of visits by 1 and add time stamp to session times cookie
     req.session.times.push([shortURL, userId, timeConverter(Math.round((new Date()).getTime() / 1000))]);
-    res.redirect(`http://${longURL}`); //if so redirect to this page
+    res.redirect(`http://${longURL}`); 
   } else {
     const userId = req.session.user_id;
     const user = users[userId];
     let templateVars = {
       urls: urlDatabase, user };
-    res.status(403).render("notURL", templateVars); //otherwise tell user this shortURL does not exist
+    res.status(403).render("notURL", templateVars); //take user to page for invalid URL if short url is not in db
   }
 });
 
@@ -167,11 +169,15 @@ app.post("/urls/:shortURL", (req, res) => {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
       res.status(403).render("notOwner", templateVars);
     } else {
+      if(req.body['longURL'] === ""){
+      res.render("emptyURL", templateVars) //make sure they can't enter empty url
+    }else {
       urlDatabase[req.params['shortURL']]['longURL'] = req.body['longURL'];
       urlDatabase[req.params['shortURL']]['userID'] = user.id;
       res.redirect('/urls'); //when user creates new short URL update database with new entry
     }
   }
+}
 });
 
 app.put("/urls/:shortURL", (req, res) => {
@@ -184,8 +190,7 @@ app.put("/urls/:shortURL", (req, res) => {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
       res.status(403).render("notOwner", templateVars);
     } else {
-      console.log(req.session.times);
-      let times = userTimes(req.params.shortURL, req.session.times);
+      let times = userTimes(req.params.shortURL, req.session.times); //create time stamp for visits to page
       let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user, times};
       res.render("urls_show", templateVars); //allow user to edit URL 
     }
@@ -250,16 +255,15 @@ app.post("/register", (req, res) => {
     res.status(400).render("userExists", templateVars);
   } else {
     if(!req.session.hasVisited || Object.keys(req.session.hasVisited).length === 0){
-    req.session.hasVisited = {};
+    req.session.hasVisited = {}; //create empty object for visits to url cookie, if it doesn't exist
     };
-    if(!req.session.times || req.session.times.length === 0){
+    if(!req.session.times || req.session.times.length === 0){ //create array for session times cookie if it doesn't exist
       req.session.times = [];
     }
-    console.log('req.session.times :', req.session.times);
     const userID = generateRandomString();
     users[userID] = createUser(userID, req.body.email, req.body.password);
     req.session.user_id = userID;
-    res.redirect("/urls"); //if not create new entry in users database with new user ID given by our random string generator
+    res.redirect("/urls"); //create new entry in users database with new user ID given by our random string generator if user is new
   }
 });
 
