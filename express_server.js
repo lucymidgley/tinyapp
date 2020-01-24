@@ -26,7 +26,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 
 
-
 app.listen(PORT, () => {
   console.log(`Tiny app listening on port ${PORT}`);
 });
@@ -34,6 +33,7 @@ app.listen(PORT, () => {
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
+
 
 //check if user exists, if not render not_logged_in
 //otherwise render index for users urls
@@ -46,13 +46,14 @@ app.get("/urls", (req, res) => {
       urls: urlDatabase, user };
     res.render("not_logged_in", templateVars);
   } else {
-    let visits = {};
-    console.log('session', req.session);
+    let totalVisits = {};
+    let uniqueVisits = {};
+    let visits = { totalVisits, uniqueVisits };
     let usersUrls = urlsForUserID(urlDatabase, user.id);
       for(const shortURL of Object.keys(usersUrls)) {
-        visits[shortURL] = req.session[shortURL]
+        visits.totalVisits[shortURL] = req.session[shortURL] //add number of visits and unique visits to visits object
+        visits.uniqueVisits[shortURL] = req.session.hasVisited[shortURL].length
       }
-      console.log(visits);
       let templateVars = {
         urls: urlsForUserID(urlDatabase, user.id), user, visits };
     res.render("urls_index", templateVars);
@@ -89,7 +90,7 @@ app.post("/urls", (req, res) => {
     urlDatabase[newStr]['longURL'] = req.body['longURL'];
     urlDatabase[newStr]['userID'] = user.id; //update db with new urls
     req.session[newStr] = 0; //set cookie for the number of visits to 0
-    console.log(req.session.newStr);
+    req.session.hasVisited[newStr] = [];  //set number of unique visits to 0
     res.redirect(`/urls/${newStr}`);
   }
 });
@@ -111,9 +112,18 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  const userId = req.session.user_id;
   if (urlDatabase[req.params['shortURL']]) { //check shortURL is in db
     const longURL = urlDatabase[req.params['shortURL']]['longURL'];
     const shortURL = req.params.shortURL;
+    if(Object.keys(req.session.hasVisited).length === 0){ //check if anyone has visited link before
+      req.session.hasVisited[shortURL] = [] 
+      req.session.hasVisited[shortURL].push(userId);
+    } else {
+      if(!req.session.hasVisited[shortURL].includes(userId)){ //check if this user has visted link before
+    req.session.hasVisited[shortURL].push(userId); //if not add user to vistors array
+    }
+  }
     req.session[shortURL] += 1;
     res.redirect(`http://${longURL}`); //if so redirect to this page
   } else {
@@ -193,7 +203,7 @@ app.post("/login", (req, res) => {
 });
 
 app.delete("/logout", (req, res) => {
-  req.session = null;
+  req.session.user_id = null;
   res.redirect("/login");
 }); //clear seesion cookies to logout, redirect to login
 
@@ -231,6 +241,9 @@ app.post("/register", (req, res) => {
       urls: urlDatabase, user: null }; //check if user already has an account by checking email against databse
     res.status(400).render("userExists", templateVars);
   } else {
+    if(!req.session.hasVisited || Object.keys(req.session.hasVisited).length === 0){
+    req.session.hasVisited = {};
+    };
     const userID = generateRandomString();
     users[userID] = createUser(userID, req.body.email, req.body.password);
     req.session.user_id = userID;
