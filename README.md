@@ -8,10 +8,10 @@ TinyApp is a full stack web application built with Node and Express that allows 
 !["Log-in to the app"](https://github.com/lucymidgley/tinyapp/blob/master/docs/login.png?raw=true)
 !["Opening screen"](https://github.com/lucymidgley/tinyapp/blob/master/docs/open.png?raw=true)
 !["Create a new tiny URL"](https://github.com/lucymidgley/tinyapp/blob/master/docs/create.png?raw=true)
-!["View your new URL"](https://github.com/lucymidgley/tinyapp/blob/master/docs/new.png?raw=true)
-!["Make several more URLs"](https://github.com/lucymidgley/tinyapp/blob/master/docs/urlsList.png?raw=true)
-!["Edit existing URL"](https://github.com/lucymidgley/tinyapp/blob/master/docs/edit.png?raw=true)
-!["View your changes"](https://github.com/lucymidgley/tinyapp/blob/master/docs/different.png?raw=true)
+!["View your new URL"](https://github.com/lucymidgley/tinyapp/blob/master/docs/newnew.png?raw=true)
+!["Make several more URLs"](https://github.com/lucymidgley/tinyapp/blob/master/docs/myUrls.png?raw=true)
+!["Edit existing URL"](https://github.com/lucymidgley/tinyapp/blob/master/docs/EDitNew.png?raw=true)
+!["View your changes"](https://github.com/lucymidgley/tinyapp/blob/master/docs/differentNew.png?raw=true)
 
 
 ## Dependencies
