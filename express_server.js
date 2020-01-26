@@ -113,8 +113,11 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  if(!req.session.user_id && urlDatabase[req.params['shortURL']]){ //if user is not logged in check if URL is in database and then redirect to longURL
+    const longURL = urlDatabase[req.params['shortURL']]['longURL'];
+    res.redirect(longURL); 
+  } else {
   const userId = req.session.user_id;
-  console.log("here!", req.session.hasVisited);
   if (urlDatabase[req.params['shortURL']]) { //check shortURL is in db
     const longURL = urlDatabase[req.params['shortURL']]['longURL'];
     const shortURL = req.params.shortURL;
@@ -137,6 +140,7 @@ app.get("/u/:shortURL", (req, res) => {
       urls: urlDatabase, user };
     res.status(403).render("not_URL", templateVars); //take user to page for invalid URL if short url is not in db
   }
+}
 });
 
 app.delete("/urls/:shortURL", (req, res) => {
