@@ -1,6 +1,6 @@
 const urlDatabase = {
-  "b2xVn2": {longURL: "www.lighthouselabs.ca", userID: "something1243"},
-  "9sm5xK": {longURL: "www.google.com", userID: "anotherthing1234"}
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "something1243"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "anotherthing1234"}
 };
 
 module.exports = urlDatabase;

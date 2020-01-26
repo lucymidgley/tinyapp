@@ -108,7 +108,7 @@ app.get("/urls/:shortURL", (req, res) => {
     res.status(403).redirect("/login");
   } else {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
-      res.status(403).render("notOwner", templateVars);
+      res.status(403).render("not_owner", templateVars);
     } else {
       let times = userTimes(req.params.shortURL, req.session.times);
       let templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'] , user, times}; //extract short and long URLs from the database using req params
@@ -134,13 +134,13 @@ app.get("/u/:shortURL", (req, res) => {
 
     req.session[shortURL] += 1; //increase number of visits by 1 and add time stamp to session times cookie
     req.session.times.push([shortURL, userId, timeConverter(Math.round((new Date()).getTime() / 1000))]);
-    res.redirect(`http://${longURL}`); 
+    res.redirect(longURL); 
   } else {
     const userId = req.session.user_id;
     const user = users[userId];
     let templateVars = {
       urls: urlDatabase, user };
-    res.status(403).render("notURL", templateVars); //take user to page for invalid URL if short url is not in db
+    res.status(403).render("not_URL", templateVars); //take user to page for invalid URL if short url is not in db
   }
 });
 
@@ -152,7 +152,7 @@ app.delete("/urls/:shortURL", (req, res) => {
     res.status(403).redirect("/login"); //check user is logged in
   } else {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
-      res.status(403).render("notOwner", templateVars);
+      res.status(403).render("not_owner", templateVars);
     } else {
       delete urlDatabase[req.params['shortURL']]; //delete entire entry of this url from database
       res.redirect(`/urls`);
@@ -168,10 +168,10 @@ app.post("/urls/:shortURL", (req, res) => {
     res.status(403).redirect("/login"); //check user logged in
   } else {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
-      res.status(403).render("notOwner", templateVars);
+      res.status(403).render("not_owner", templateVars);
     } else {
       if(req.body['longURL'] === ""){
-      res.render("emptyURL", templateVars) //make sure they can't enter empty url
+      res.render("empty_URL", templateVars) //make sure they can't enter empty url
     }else {
       urlDatabase[req.params['shortURL']]['longURL'] = req.body['longURL'];
       urlDatabase[req.params['shortURL']]['userID'] = user.id;
@@ -189,7 +189,7 @@ app.put("/urls/:shortURL", (req, res) => {
     res.status(403).redirect("/login"); //check user logged in
   } else {
     if (!checkShortURL(urlDatabase, userId, req.params.shortURL)) { //check user owns this short URL
-      res.status(403).render("notOwner", templateVars);
+      res.status(403).render("not_owner", templateVars);
     } else {
       let times = userTimes(req.params.shortURL, req.session.times); //create time stamp for visits to page
       let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user, times};
@@ -246,14 +246,14 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  if (req.body.email === "" || req.body.password === "") {
+  if (!req.body.email || !req.body.password) {
     let templateVars = {
       urls: urlDatabase, user: null };
-    res.status(400).render("badDet", templateVars); //check user has entered somehting in each field
+    res.status(400).render("bad_det", templateVars); //check user has entered somehting in each field
   } else if (lookupEmail(req.body.email, users) === req.body.email) {
     let templateVars = {
       urls: urlDatabase, user: null }; //check if user already has an account by checking email against databse
-    res.status(400).render("userExists", templateVars);
+    res.status(400).render("user_exists", templateVars);
   } else {
     if(!req.session.hasVisited || Object.keys(req.session.hasVisited).length === 0){
     req.session.hasVisited = {}; //create empty object for visits to url cookie, if it doesn't exist
