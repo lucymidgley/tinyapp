@@ -87,7 +87,7 @@ app.post("/urls", (req, res) => {
     res.status(403).redirect("/login");
   } else {
     if(req.body['longURL'] === ""){
-      res.render("emptyURL", templateVars ) //make sure they can't enter empty url
+      res.render("empty_URL", templateVars ) //make sure they can't enter empty url
   }else {
     const newStr = generateRandomString(); //create random string for the shortURL
     urlDatabase[newStr] = {};
@@ -119,6 +119,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const userId = req.session.user_id;
+  console.log("here!", req.session.hasVisited);
   if (urlDatabase[req.params['shortURL']]) { //check shortURL is in db
     const longURL = urlDatabase[req.params['shortURL']]['longURL'];
     const shortURL = req.params.shortURL;
@@ -201,13 +202,13 @@ app.post("/login", (req, res) => {
   if (lookupEmail(req.body.email, users) !== req.body.email) {
     let templateVars = {
       urls: urlDatabase, user: null }; //check user is in db
-    res.status(403).render("badDet", templateVars); //if not allow them to enter details again or register
+    res.status(403).render("bad_det", templateVars); //if not allow them to enter details again or register
   } else {
     const user = findUserByEmail(req.body.email, users);
     if (!bcrypt.compareSync(req.body.password, user.password)) {
       let templateVars = {
         urls: urlDatabase, user: null }; //check hached passwords match, if not allow them to try again, register wrong password page
-      res.status(403).render("badPw", templateVars);
+      res.status(403).render("bad_pw", templateVars);
     } else {
       req.session.user_id = user.id;
       res.redirect("/urls"); //allow user to access their urls
@@ -256,6 +257,8 @@ app.post("/register", (req, res) => {
   } else {
     if(!req.session.hasVisited || Object.keys(req.session.hasVisited).length === 0){
     req.session.hasVisited = {}; //create empty object for visits to url cookie, if it doesn't exist
+    req.session.hasVisited["b2xVn2"] = []; //create session for test URLS in db
+    req.session.hasVisited["9sm5xK"] = [];
     };
     if(!req.session.times || req.session.times.length === 0){ //create array for session times cookie if it doesn't exist
       req.session.times = [];
@@ -263,6 +266,8 @@ app.post("/register", (req, res) => {
     const userID = generateRandomString();
     users[userID] = createUser(userID, req.body.email, req.body.password);
     req.session.user_id = userID;
+    req.session.hasVisited["b2xVn2"] = []; //create session for test URLS in db
+    req.session.hasVisited["9sm5xK"] = [];
     res.redirect("/urls"); //create new entry in users database with new user ID given by our random string generator if user is new
   }
 });
