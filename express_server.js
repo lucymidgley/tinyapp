@@ -25,11 +25,6 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 
-
-app.listen(PORT, () => {
-  console.log(`Tiny app listening on port ${PORT}`);
-});
-
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
@@ -272,3 +267,6 @@ app.post("/register", (req, res) => {
   }
 });
 
+app.listen(PORT, () => {
+  console.log(`Tiny app listening on port ${PORT}`);
+});
